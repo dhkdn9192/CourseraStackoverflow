@@ -103,7 +103,7 @@ The above information should allow you to implement the groupedPostings method. 
 
     def groupedPostings(postings: RDD[Posting]): 
         RDD[(QID, Iterable[(Question, Answer)])]
-
+
 ### Computing Scores
 
 Second, implement the scoredPostings method, which should return an RDD containing pairs of (a) questions and (b) the score of the answer with the highest score (note: this does not have to be the answer marked as acceptedAnswer!). The type of this scored RDD is:
@@ -147,7 +147,7 @@ Implement this functionality in method vectorPostings by using the given firstLa
 
 ## Kmeans Clustering
 
-...
+...
 
     val means = kmeans(sampleVectors(vectors), vectors)
 
