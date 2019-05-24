@@ -32,7 +32,7 @@ Note: for this assignment, we assume you recall the K-means algorithm introduced
 You are given a CSV (comma-separated values) file with information about StackOverflow posts. Each line in the provided text file has the following format:
 
     <postTypeId>,<id>,[<acceptedAnswer>],[<parentId>],<score>,[<tag>]
-
+    
 A short explanation of the comma-separated fields follows.
 
     <postTypeId>:     Type of the post. Type 1 = question, 
@@ -55,7 +55,7 @@ A short explanation of the comma-separated fields follows.
                       that the post is about, in case it's a 
                       question, or missing in case it's an answer.
 
-
+
 You will see the following code in the main class:
 
     val lines   = sc.textFile("src/main/resources/stackoverflow/stackoverflow.csv")
@@ -63,7 +63,7 @@ You will see the following code in the main class:
     val grouped = groupedPostings(raw)
     val scored  = scoredPostings(grouped)
     val vectors = vectorPostings(scored)
-
+
 It corresponds to the following steps:
 
 1. lines: the lines from the csv file as strings
@@ -81,7 +81,9 @@ We will now look at how you process the data before applying the kmeans algorith
 Grouping questions and answers
 The first method you will have to implement is groupedPostings:
 
-
+    val grouped = groupedPostings(raw)
+
+
 In the raw variable we have simple postings, either questions or answers, but in order to use the data we need to assemble them together. Questions are identified using a postTypeId == 1. Answers to a question with id == QID have (a) postTypeId == 2 and (b) parentId == QID.
 
 Ideally, we want to obtain an RDD with the pairs of (Question, Iterable\[Answer]). However, grouping on the question directly is expensive (can you imagine why?), so a better alternative is to match on the QID, thus producing an RDD\[(QID, Iterable\[(Question, Answer))].
@@ -95,7 +97,8 @@ Finally, in the description we used QID, Question and Answer types, which we've 
     type QID = Int
     type HighScore = Int
     type LangIndex = Int
-
+
+
 The above information should allow you to implement the groupedPostings method. Its signature is:
 
     def groupedPostings(postings: RDD[Posting]): 
@@ -106,7 +109,7 @@ The above information should allow you to implement the groupedPostings method. 
 Second, implement the scoredPostings method, which should return an RDD containing pairs of (a) questions and (b) the score of the answer with the highest score (note: this does not have to be the answer marked as acceptedAnswer!). The type of this scored RDD is:
 
     val scored: RDD[(Question, HighScore)] = ???
-
+
 For example, the scored RDD should contain the following tuples:
 
     ((1, 6,   None, None, 140, Some(CSS)),  67)
@@ -114,7 +117,7 @@ For example, the scored RDD should contain the following tuples:
     ((1, 72,  None, None, 16,  Some(Ruby)), 3)
     ((1, 126, None, None, 33,  Some(Java)), 30)
     ((1, 174, None, None, 38,  Some(C#)),   20)
-
+
 Hint: use the provided answerHighScore given in scoredPostings.
 
 ### Creating vectors for clustering
@@ -129,7 +132,7 @@ The langSpread factor is provided (set to 50000). Basically, it makes sure posts
 The type of the vectors RDD is as follows:
 
     val vectors: RDD[(LangIndex, HighScore)] = ???
-
+
 For example, the vectors RDD should contain the following tuples:
 
     (350000, 67)
@@ -137,7 +140,7 @@ For example, the vectors RDD should contain the following tuples:
     (300000, 3)
     (50000,  30)
     (200000, 20)
-
+
 Implement this functionality in method vectorPostings by using the given firstLangInTag helper method.
 
 (Idea for test: scored RDD should have 2121822 entries)
@@ -162,7 +165,7 @@ In our tests, convergence is reached after 44 iterations (for langSpread = 50000
 If you want to get the results faster, feel free to downsample the data (each iteration is faster, but it still takes around 40 steps to converge):
 
     val scored = scoredPostings(grouped).sample(true, 0.1, 0)
-
+
 However, keep in mind that we will test your assignment on the full data set. So that means you can downsample for experimentation, but make sure your algorithm works on the full data set when you submit for grading.
 
 ##### Note 2:
@@ -175,7 +178,7 @@ After the call to kmeans, we have the following code in method main:
 
     val results = clusterResults(means, vectors)
     printResults(results)
-
+
 Implement the clusterResults method, which, for each cluster, computes:
 
 - (a) the dominant programming language in the cluster;
